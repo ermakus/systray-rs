@@ -10,7 +10,7 @@ Good luck.
 
 # systray-rs-ty
 
-[![Crates.io](https://img.shields.io/crates/v/systray-ty)](https://crates.io/crates/systray-ty) [![Crates.io](https://img.shields.io/crates/d/systray-ty)](https://crates.io/crates/systray-ty)
+[![Crates.io](https://img.shields.io/crates/v/systray-ti)](https://crates.io/crates/systray-ti) [![Crates.io](https://img.shields.io/crates/d/systray-ti)](https://crates.io/crates/systray-ti)
 
 [![Build Status](https://travis-ci.org/qdot/systray-rs.svg?branch=master)](https://travis-ci.org/qdot/systray-rs) [![Build status](https://ci.appveyor.com/api/projects/status/lhqm3lucb5w5559b?svg=true)](https://ci.appveyor.com/project/qdot/systray-rs)
 
