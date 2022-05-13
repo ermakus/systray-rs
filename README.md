@@ -1,6 +1,16 @@
-# systray-rs
+# SYSTRAY-RS IS ALIVE
 
-[![Crates.io](https://img.shields.io/crates/v/systray)](https://crates.io/crates/systray) [![Crates.io](https://img.shields.io/crates/d/systray)](https://crates.io/crates/systray)
+To anyone who wants to fork: You can, but I would really recommend against it. Use this repo as reference if you want to, but most of this code was written in 2016, when I was very new to Rust. It doesn't handle cross-platform GUI needs well at all.
+
+If you're going to build your own version of this: Great! If/when you finish it, get in touch and I'll add a link here. But a word of advice: You really do not want to tackle this from the perspective of "Oh I'll do it on [insert prefered OS here] then other people will contribute other platforms". You need to plan for Win/macOS/Linux at the same time or you will end up with an unworkable mess. There are systray implementations in other languages (some of which are listed in the issues here), I'd definitely recommend cribbing from those, much as I tried to crib this one from Go.
+
+I'm going to leave the issues and PRs up since they may also contain relevant reference info for whoever decides to take this on next.
+
+Good luck.
+
+# systray-rs-ty
+
+[![Crates.io](https://img.shields.io/crates/v/systray-ti)](https://crates.io/crates/systray-ti) [![Crates.io](https://img.shields.io/crates/d/systray-ti)](https://crates.io/crates/systray-ti)
 
 [![Build Status](https://travis-ci.org/qdot/systray-rs.svg?branch=master)](https://travis-ci.org/qdot/systray-rs) [![Build status](https://ci.appveyor.com/api/projects/status/lhqm3lucb5w5559b?svg=true)](https://ci.appveyor.com/project/qdot/systray-rs)
 
@@ -26,7 +36,7 @@ from [winapi-rs, by retep998](https://github.com/retep998/winapi-rs).
 This code is covered under the MIT license. This code will be removed
 once winapi-rs has a 0.3 crate available.
 
-systray-rs is BSD licensed.
+systray-rs-ty is BSD licensed.
 
     Copyright (c) 2016-2020, Nonpolynomial Labs, LLC
     All rights reserved.

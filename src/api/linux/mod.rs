@@ -1,7 +1,7 @@
 use crate::{Error, SystrayEvent};
 use glib;
 use gtk::{
-    self, MenuShellExt, GtkMenuItemExt, WidgetExt
+    self, prelude::{MenuShellExt, GtkMenuItemExt, WidgetExt}, traits::ContainerExt
 };
 use libappindicator::{AppIndicator, AppIndicatorStatus};
 use std::{
@@ -31,7 +31,7 @@ pub struct MenuItemInfo {
     checked: bool,
 }
 
-type Callback = Box<(Fn(&GtkSystrayApp) -> () + 'static)>;
+type Callback = Box<(dyn Fn(&GtkSystrayApp) -> () + 'static)>;
 
 // Convenience function to clean up thread local unwrapping
 fn run_on_gtk_thread<F>(f: F)
@@ -93,7 +93,7 @@ impl GtkSystrayApp {
             self.menu.show_all();
             return;
         }
-        let m = gtk::MenuItem::new_with_label(item_name);
+        let m = gtk::MenuItem::with_label(item_name);
         self.menu.append(&m);
         m.connect_activate(move |_| {
             run_on_gtk_thread(move |stash: &GtkSystrayApp| {
@@ -102,6 +102,13 @@ impl GtkSystrayApp {
         });
         menu_items.insert(item_idx, m);
         self.menu.show_all();
+    }
+
+    pub fn remove_menu_entry(&self, idx: u32) {
+        if let Some(item) = self.menu.children().into_iter().nth(idx as usize) {
+            self.menu.remove(&item);
+            self.menu_items.borrow_mut().remove(&idx);
+        }
     }
 
     pub fn set_icon_from_file(&self, file: &str) {
@@ -144,6 +151,11 @@ impl Window {
             stash.add_menu_entry(item_idx, &n);
         });
         Ok(())
+    }
+    pub fn remove_menu_entry(&self, pos: u32) {
+        run_on_gtk_thread(move |stash: &GtkSystrayApp| {
+            stash.remove_menu_entry(pos);
+        });
     }
 
     pub fn add_menu_separator(&self, item_idx: u32) -> Result<(), Error> {
