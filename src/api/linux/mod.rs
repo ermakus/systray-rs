@@ -1,13 +1,16 @@
 use crate::{Error, SystrayEvent};
 use glib;
 use gtk::{
-    self, prelude::{MenuShellExt, GtkMenuItemExt, WidgetExt}, traits::ContainerExt
+    self,
+    prelude::{GtkMenuItemExt, MenuShellExt, WidgetExt},
+    traits::ContainerExt,
 };
 use libappindicator::{AppIndicator, AppIndicatorStatus};
 use std::{
     self,
     cell::RefCell,
     collections::HashMap,
+    path::PathBuf,
     sync::mpsc::{channel, Sender},
     thread,
 };
@@ -23,6 +26,7 @@ pub struct GtkSystrayApp {
 
 thread_local!(static GTK_STASH: RefCell<Option<GtkSystrayApp>> = RefCell::new(None));
 
+#[allow(dead_code)]
 pub struct MenuItemInfo {
     mid: u32,
     title: String,
@@ -31,6 +35,7 @@ pub struct MenuItemInfo {
     checked: bool,
 }
 
+#[allow(dead_code)]
 type Callback = Box<(dyn Fn(&GtkSystrayApp) -> () + 'static)>;
 
 // Convenience function to clean up thread local unwrapping
@@ -55,17 +60,18 @@ where
 impl GtkSystrayApp {
     pub fn new(event_tx: Sender<SystrayEvent>) -> Result<GtkSystrayApp, Error> {
         if let Err(e) = gtk::init() {
-            return Err(Error::OsError(format!("{}", "Gtk init error!")));
+            return Err(Error::OsError(format!("GTK init error: {}", e.to_string())));
         }
         let mut m = gtk::Menu::new();
-        let mut ai = AppIndicator::new("", "");
+        let mut ai = AppIndicator::new("App", "");
         ai.set_status(AppIndicatorStatus::Active);
         ai.set_menu(&mut m);
+
         Ok(GtkSystrayApp {
             menu: m,
             ai: RefCell::new(ai),
             menu_items: RefCell::new(HashMap::new()),
-            event_tx: event_tx,
+            event_tx,
         })
     }
 
@@ -77,7 +83,7 @@ impl GtkSystrayApp {
             .ok();
     }
 
-    pub fn add_menu_separator(&self, item_idx: u32) {
+    pub fn add_menu_separator(&self, _item_idx: u32) {
         //let mut menu_items = self.menu_items.borrow_mut();
         let m = gtk::SeparatorMenuItem::new();
         self.menu.append(&m);
@@ -113,10 +119,24 @@ impl GtkSystrayApp {
 
     pub fn set_icon_from_file(&self, file: &str) {
         let mut ai = self.ai.borrow_mut();
-        ai.set_icon_full(file, "icon");
+        let path: PathBuf = file.into();
+        let theme_path = path
+            .parent()
+            .expect("Full path to icon")
+            .to_string_lossy()
+            .into_owned();
+        let icon = path
+            .file_stem()
+            .expect("Icon name")
+            .to_string_lossy()
+            .into_owned();
+
+        ai.set_icon_theme_path(&theme_path);
+        ai.set_icon_full(&icon, "icon");
     }
 }
 
+#[allow(dead_code)]
 pub struct Window {
     gtk_loop: Option<thread::JoinHandle<()>>,
 }
@@ -128,10 +148,10 @@ impl Window {
             GTK_STASH.with(|stash| match GtkSystrayApp::new(event_tx) {
                 Ok(data) => {
                     (*stash.borrow_mut()) = Some(data);
-                    tx.send(Ok(()));
+                    tx.send(Ok(())).ok();
                 }
                 Err(e) => {
-                    tx.send(Err(e));
+                    tx.send(Err(e)).ok();
                     return;
                 }
             });
@@ -173,7 +193,7 @@ impl Window {
         Ok(())
     }
 
-    pub fn set_icon_from_resource(&self, resource: &str) -> Result<(), Error> {
+    pub fn set_icon_from_resource(&self, _resource: &str) -> Result<(), Error> {
         panic!("Not implemented on this platform!");
     }
 
@@ -181,7 +201,7 @@ impl Window {
         Ok(())
     }
 
-    pub fn set_tooltip(&self, tooltip: &str) -> Result<(), Error> {
+    pub fn set_tooltip(&self, _tooltip: &str) -> Result<(), Error> {
         panic!("Not implemented on this platform!");
     }
 
