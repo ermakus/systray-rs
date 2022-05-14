@@ -334,7 +334,9 @@ impl Window {
     }
 
     pub fn remove_menu_entry(&self, item_idx: u32) {
-        unsafe { winuser::RemoveMenu(self.info.hmenu, item_idx, 1 as _); }
+        unsafe {
+            winuser::RemoveMenu(self.info.hmenu, item_idx, 1 as _);
+        }
     }
 
     pub fn add_menu_separator(&self, item_idx: u32) -> Result<(), Error> {

@@ -10,10 +10,13 @@ use std::{
     self,
     cell::RefCell,
     collections::HashMap,
+    io::Write,
     path::PathBuf,
     sync::mpsc::{channel, Sender},
     thread,
 };
+
+use tempfile::{Builder, NamedTempFile};
 
 // Gtk specific struct that will live only in the Gtk thread, since a lot of the
 // base types involved don't implement Send (for good reason).
@@ -139,6 +142,7 @@ impl GtkSystrayApp {
 #[allow(dead_code)]
 pub struct Window {
     gtk_loop: Option<thread::JoinHandle<()>>,
+    temp_icons: Vec<NamedTempFile>,
 }
 
 impl Window {
@@ -160,6 +164,7 @@ impl Window {
         match rx.recv().unwrap() {
             Ok(()) => Ok(Window {
                 gtk_loop: Some(gtk_loop),
+                temp_icons: Vec::new(),
             }),
             Err(e) => Err(e),
         }
@@ -195,6 +200,22 @@ impl Window {
 
     pub fn set_icon_from_resource(&self, _resource: &str) -> Result<(), Error> {
         panic!("Not implemented on this platform!");
+    }
+
+    pub fn set_icon_from_buffer(
+        &mut self,
+        buffer: &[u8],
+        _width: u32,
+        _height: u32,
+    ) -> Result<(), Error> {
+        let mut file = Builder::new()
+            .suffix(".png")
+            .tempfile()
+            .map_err(Error::IoError)?;
+        file.write(buffer).map_err(Error::IoError)?;
+        self.set_icon_from_file(&file.path().to_string_lossy().into_owned())?;
+        self.temp_icons.push(file);
+        Ok(())
     }
 
     pub fn shutdown(&self) -> Result<(), Error> {

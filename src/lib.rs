@@ -3,7 +3,7 @@ pub mod api;
 
 use std::{
     collections::HashMap,
-    error, fmt,
+    error, fmt, io,
     sync::mpsc::{channel, Receiver},
 };
 
@@ -15,6 +15,7 @@ pub enum Error {
     NotImplementedError,
     UnknownError,
     Error(BoxedError),
+    IoError(io::Error),
 }
 
 impl From<BoxedError> for Error {
@@ -35,6 +36,7 @@ impl fmt::Display for Error {
 
         match *self {
             OsError(ref err_str) => write!(f, "OsError: {}", err_str),
+            IoError(ref err_str) => write!(f, "IoError: {}", err_str),
             NotImplementedError => write!(f, "Functionality is not implemented yet"),
             UnknownError => write!(f, "Unknown error occurrred"),
             Error(ref e) => write!(f, "Error: {}", e),
@@ -131,9 +133,8 @@ impl Application {
         self.window.set_icon_from_resource(resource)
     }
 
-    #[cfg(target_os = "windows")]
     pub fn set_icon_from_buffer(
-        &self,
+        &mut self,
         buffer: &[u8],
         width: u32,
         height: u32,

@@ -1,20 +1,21 @@
 #![windows_subsystem = "windows"]
 
-//#[cfg(target_os = "windows")]
 fn main() -> Result<(), systray::Error> {
     let mut app;
     match systray::Application::new() {
         Ok(w) => app = w,
         Err(_) => panic!("Can't create window!"),
     }
-    // w.set_icon_from_file(&"C:\\Users\\qdot\\code\\git-projects\\systray-rs\\resources\\rust.ico".to_string());
-    // w.set_tooltip(&"Whatever".to_string());
 
+    /*
     let icon_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("examples")
         .join("rust-logo.png");
-
     app.set_icon_from_file(icon_path.to_str().unwrap())?;
+    */
+
+    let icon = include_bytes!("rust-logo.png");
+    app.set_icon_from_buffer(icon, 32, 32).unwrap();
 
     app.add_menu_item("Print a thing", |_| {
         println!("Printing a thing!");
@@ -22,11 +23,10 @@ fn main() -> Result<(), systray::Error> {
     })?;
 
     app.add_menu_item("Add Menu Item", |window| {
-        window.add_menu_item("Interior item", |_| {
-            println!("what");
+        window.add_menu_item("Delete item", |window| {
+            window.remove_menu_item(4);
             Ok::<_, systray::Error>(())
         })?;
-        window.add_menu_separator()?;
         Ok::<_, systray::Error>(())
     })?;
 
