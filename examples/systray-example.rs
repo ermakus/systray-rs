@@ -24,7 +24,7 @@ fn main() -> Result<(), systray::Error> {
 
     app.add_menu_item("Add Menu Item", |window| {
         window.add_menu_item("Delete item", |window| {
-            window.remove_menu_item(4);
+            window.remove_menu_item(5);
             Ok::<_, systray::Error>(())
         })?;
         Ok::<_, systray::Error>(())
