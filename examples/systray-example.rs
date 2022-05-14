@@ -1,4 +1,5 @@
 #![windows_subsystem = "windows"]
+use std::sync::{Arc, Mutex};
 
 fn main() -> Result<(), systray::Error> {
     let mut app;
@@ -22,11 +23,16 @@ fn main() -> Result<(), systray::Error> {
         Ok::<_, systray::Error>(())
     })?;
 
-    app.add_menu_item("Add Menu Item", |window| {
-        window.add_menu_item("Delete item", |window| {
-            window.remove_menu_item(3);
+    let items = Arc::new(Mutex::new(Vec::new()));
+
+    app.add_menu_item("Add Menu Item", move |window| {
+        let items1 = items.clone();
+        let index = window.add_menu_item("Delete item", move |window| {
+            let index = items1.lock().unwrap().pop().unwrap();
+            window.remove_menu_item(index);
             Ok::<_, systray::Error>(())
         })?;
+        items.lock().unwrap().push(index);
         Ok::<_, systray::Error>(())
     })?;
 

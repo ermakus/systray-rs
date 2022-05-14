@@ -114,10 +114,11 @@ impl GtkSystrayApp {
     }
 
     pub fn remove_menu_entry(&self, idx: u32) {
-        if let Some(item) = self.menu.children().into_iter().nth(idx.checked_add(1).unwrap() as usize) {
-            self.menu.remove(&item);
-            self.menu_items.borrow_mut().remove(&idx);
+        let mut menu_items = self.menu_items.borrow_mut();
+        if let Some(item) = menu_items.get(&idx) {
+            self.menu.remove(item);
         }
+        menu_items.remove(&idx);
     }
 
     pub fn set_icon_from_file(&self, file: &str) {
