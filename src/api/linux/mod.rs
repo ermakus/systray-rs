@@ -114,7 +114,7 @@ impl GtkSystrayApp {
     }
 
     pub fn remove_menu_entry(&self, idx: u32) {
-        if let Some(item) = self.menu.children().into_iter().nth(idx.checked_sub(1).unwrap() as usize) {
+        if let Some(item) = self.menu.children().into_iter().nth(idx.checked_add(1).unwrap() as usize) {
             self.menu.remove(&item);
             self.menu_items.borrow_mut().remove(&idx);
         }
